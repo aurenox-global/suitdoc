@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark" data-lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Suit Doc — app de documentos 100% offline (ES/EN)</title>
+<meta name="description" content="Suit Doc — editor de documentos por bloques para Android, 100% offline, en español e inglés. Editor rich-text, exportación a TXT/MD/HTML/PDF/DOCX/RTF, cámara + OCR, imágenes a PDF, herramientas PDF, corrector ortográfico y firma con el dedo. / Block-based document editor for Android, 100% offline, in Spanish and English." />
+<meta name="theme-color" content="#071427" />
+<style>
+  /* Exact palette from app/src/main/java/com/mobiledoc/studio/ui/theme/Color.kt */
+  :root {
+    --navy-bg: #071427;         /* NavyBackground */
+    --navy-surface: #182842;    /* NavySurface */
+    --navy-surface-var: #24344E;/* NavySurfaceVariant */
+    --outline-dark: #2E3E58;    /* OutlineDark */
+    --lime: #C6EBA8;            /* Lime */
+    --lime-bright: #CDF06B;     /* LimeBright */
+    --cyan: #2AC9E7;            /* Cyan */
+    --pink: #EFD3F0;            /* Pink */
+    --pink-muted: #CBBFD7;      /* PinkMuted */
+    --text: #E3ECF1;            /* OnDarkText */
+    --text-2: #C9D4DA;          /* OnDarkTextSecondary */
+    --text-muted: #B1BEC4;      /* OnDarkTextMuted */
+    --ink: #0A1A2F;             /* InkOnAccent */
+    --lime-container: #1F3322;  /* LimeContainer */
+    --cyan-container: #0A3340;  /* CyanContainer */
+    --pink-container: #332437;  /* PinkContainer */
+    --radius: 20px;
+    --maxw: 960px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --shadow: 0 12px 34px rgba(0, 0, 0, .4);
+    --bg: var(--navy-bg);
+    --bg-2: var(--navy-surface);
+    --card: var(--navy-surface-var);
+    --border: var(--outline-dark);
+  }
+  html[data-theme="light"] {
+    --bg: #F4F7FB;              /* LightBackground */
+    --bg-2: #FFFFFF;            /* LightSurface */
+    --card: #FFFFFF;
+    --border: #E8EDF3;          /* LightSurfaceVariant */
+    --text: #0B1A2E;            /* OnLightText */
+    --text-2: #44566A;          /* OnLightTextSecondary */
+    --text-muted: #6B7B8E;      /* OnLightTextMuted */
+    --outline: #8A97A6;         /* OutlineLight */
+    --accent-lime: #4F7A1C;     /* LimeDark */
+    --accent-cyan: #0E8CA8;     /* CyanDark */
+    --accent-pink: #A064A8;     /* PinkDark */
+    --accent-lime-cont: #DDF1C8;/* LimeDarkContainer */
+    --accent-cyan-cont: #D0F0F7;/* CyanDarkContainer */
+    --accent-pink-cont: #F6E1F6;/* PinkDarkContainer */
+    --shadow: 0 10px 30px rgba(11, 26, 46, .10);
+  }
+  html[data-theme="dark"] {
+    --outline: var(--outline-dark);
+    --accent-lime: var(--lime);
+    --accent-cyan: var(--cyan);
+    --accent-pink: var(--pink);
+    --accent-lime-cont: var(--lime-container);
+    --accent-cyan-cont: var(--cyan-container);
+    --accent-pink-cont: var(--pink-container);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+  /* ---------- language toggle (block-level) ---------- */
+  /* This rule must NOT reach <html data-lang=…> itself, only its content. */
+  body [data-lang] { display: none; }
+  html[data-lang="es"] [data-lang="es"], html[data-lang="en"] [data-lang="en"] { display: block; }
+  span[data-lang] { display: none; }
+  html[data-lang="es"] span[data-lang="es"], html[data-lang="en"] span[data-lang="en"] { display: inline; }
+
+  /* ---------- top bar ---------- */
+  header.top {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: saturate(180%) blur(14px);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .top .wrap { display: flex; align-items: center; gap: 12px; height: 62px; }
+  .top .brand { font-weight: 700; letter-spacing: -.2px; font-size: 17px; }
+  .top .spacer { flex: 1; }
+  .switch { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .switch button {
+    border: 0; background: transparent; color: var(--text-muted); cursor: pointer;
+    padding: 6px 13px; font: inherit; font-size: 13px; font-weight: 600;
+  }
+  .switch button[aria-pressed="true"] { background: var(--accent-lime); color: var(--ink); }
+  #themeBtn {
+    border: 1px solid var(--border); background: transparent; color: var(--text);
+    border-radius: 999px; cursor: pointer; width: 38px; height: 34px; font-size: 15px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { text-align: center; padding: 64px 0 28px; }
+  .hero .appicon {
+    width: 128px; height: 128px; border-radius: 30px; box-shadow: var(--shadow);
+    background: linear-gradient(135deg, var(--navy-surface-var), var(--navy-bg));
+    border: 2px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 58px;
+  }
+  .hero h1 { font-size: clamp(32px, 6vw, 50px); margin: 22px 0 6px; letter-spacing: -.03em; }
+  .hero h1 .accent { color: var(--accent-lime); }
+  .hero p.tag { font-size: clamp(16px, 2.4vw, 20px); color: var(--text-2); margin: 0 auto; max-width: 680px; }
+  .hero .dl { margin-top: 26px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--lime-bright); color: var(--ink);
+    font-weight: 700; font-size: 16px; padding: 14px 26px;
+    border-radius: 999px; border: 0; cursor: pointer;
+    box-shadow: 0 8px 24px rgba(205, 240, 107, .25);
+    text-decoration: none;
+  }
+  .btn:hover { text-decoration: none; filter: brightness(1.05); }
+  html[data-theme="light"] .btn { color: #1C2E08; box-shadow: 0 8px 24px rgba(79, 122, 28, .22); }
+  .dl .hint { margin-top: 10px; font-size: 13px; color: var(--text-muted); font-family: var(--mono); }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 22px; }
+  .badge {
+    font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent-cyan) 14%, transparent);
+    color: var(--accent-cyan); border: 1px solid color-mix(in srgb, var(--accent-cyan) 30%, transparent);
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: 30px 0; }
+  h2 { font-size: 25px; letter-spacing: -.02em; margin: 0 0 8px; display: flex; align-items: center; gap: 10px; }
+  h2::before { content: ""; width: 6px; height: 22px; border-radius: 3px; background: linear-gradient(var(--accent-lime), var(--accent-cyan)); }
+  .lead { color: var(--text-muted); margin: 0 0 16px; }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .card .ico { font-size: 22px; }
+  .card h3 { margin: 8px 0 4px; font-size: 15.5px; }
+  .card p { margin: 0; color: var(--text-muted); font-size: 14px; }
+
+  ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 14px 0 0; }
+  ol.steps li {
+    position: relative; padding: 12px 16px 12px 56px; margin: 10px 0;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  }
+  ol.steps li::before {
+    counter-increment: s; content: counter(s);
+    position: absolute; left: 14px; top: 12px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: color-mix(in srgb, var(--accent-lime) 20%, transparent);
+    color: var(--accent-lime); font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .sha-box {
+    background: var(--navy-surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 16px; font-family: var(--mono);
+    font-size: 13px; color: var(--text-2); word-break: break-all; margin-top: 12px;
+  }
+  html[data-theme="light"] .sha-box { background: #0F1724; color: #D7E3F4; border-color: #0F1724; }
+
+  footer {
+    margin-top: 40px; padding: 28px 0; border-top: 1px solid var(--border);
+    text-align: center; color: var(--text-muted); font-size: 14px;
+  }
+  footer .copy { font-weight: 600; color: var(--text-2); }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <span class="brand">🧥 Suit Doc</span>
+      <span class="spacer"></span>
+      <div class="switch" role="group" aria-label="Language">
+        <button id="lang-es" aria-pressed="true" onclick="setLang('es')">ES</button>
+        <button id="lang-en" aria-pressed="false" onclick="setLang('en')">EN</button>
+      </div>
+      <button id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">☀️</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- hero -->
+    <div class="hero">
+      <div class="appicon">🧥</div>
+      <h1><span class="accent">Suit Doc</span></h1>
+      <p class="tag">
+        <span data-lang="es">Editor de documentos por bloques para Android. <b>100% offline</b>: sin nube, sin cuentas, sin anuncios, sin permisos de red.</span>
+        <span data-lang="en">Block-based document editor for Android. <b>100% offline</b>: no cloud, no accounts, no ads, no network permissions.</span>
+      </p>
+      <div class="dl">
+        <a class="btn" href="https://github.com/aurenox-global/suitdoc/releases/download/v2.0.0-alpha16/SuitDoc-2.0.0-alpha16.apk">
+          ⬇️&nbsp;<span data-lang="es">Descargar APK (v2.0.0-alpha16)</span><span data-lang="en">Download APK (v2.0.0-alpha16)</span>
+        </a>
+        <div class="hint">SHA-256: 9abd399ffbad0ce50000a36d5546af72d59d8224955e5c3d058f731fbb408f41</div>
+      </div>
+      <div class="badges">
+        <span class="badge">100% offline</span>
+        <span class="badge">ES / EN</span>
+        <span class="badge">TXT · MD · HTML · PDF · DOCX · RTF</span>
+        <span class="badge">OCR on-device</span>
+        <span class="badge">v2.0.0-alpha16</span>
+      </div>
+    </div>
+
+    <!-- features -->
+    <section id="features">
+      <h2><span data-lang="es">Funciones</span><span data-lang="en">Features</span></h2>
+      <p class="lead"><span data-lang="es">Todo ocurre en tu dispositivo.</span><span data-lang="en">Everything happens on your device.</span></p>
+      <div class="grid">
+        <div class="card"><div class="ico">📝</div><h3><span data-lang="es">Editor rich-text por bloques</span><span data-lang="en">Block-based rich-text editor</span></h3><p><span data-lang="es">Escribe en bloques: títulos, párrafos, listas, citas y código.</span><span data-lang="en">Write in blocks: headings, paragraphs, lists, quotes and code.</span></p></div>
+        <div class="card"><div class="ico">📤</div><h3><span data-lang="es">Exportación amplia</span><span data-lang="en">Broad export</span></h3><p><span data-lang="es">TXT, Markdown, HTML, PDF, DOCX y RTF.</span><span data-lang="en">TXT, Markdown, HTML, PDF, DOCX and RTF.</span></p></div>
+        <div class="card"><div class="ico">📷</div><h3><span data-lang="es">Cámara + OCR</span><span data-lang="en">Camera + OCR</span></h3><p><span data-lang="es">Escanea documentos y reconoce el texto en el dispositivo.</span><span data-lang="en">Scan documents and recognize text on-device.</span></p></div>
+        <div class="card"><div class="ico">🖼️</div><h3><span data-lang="es">Imágenes → PDF</span><span data-lang="en">Images → PDF</span></h3><p><span data-lang="es">Combina varias fotos en un PDF de varias páginas.</span><span data-lang="en">Combine several photos into a multi-page PDF.</span></p></div>
+        <div class="card"><div class="ico">🔧</div><h3><span data-lang="es">Herramientas PDF</span><span data-lang="en">PDF tools</span></h3><p><span data-lang="es">Unir, dividir, comprimir y editar (rotar, eliminar, reordenar, extraer).</span><span data-lang="en">Merge, split, compress and edit (rotate, delete, reorder, extract).</span></p></div>
+        <div class="card"><div class="ico">✅</div><h3><span data-lang="es">Corrector ortográfico ES</span><span data-lang="en">Spanish spell checker</span></h3><p><span data-lang="es">Subraya los errores y sugiere correcciones, todo offline.</span><span data-lang="en">Underlines mistakes and suggests corrections, fully offline.</span></p></div>
+        <div class="card"><div class="ico">✍️</div><h3><span data-lang="es">Firma con el dedo</span><span data-lang="en">Finger signature</span></h3><p><span data-lang="es">Firma tus documentos directamente en la pantalla.</span><span data-lang="en">Sign your documents right on the screen.</span></p></div>
+        <div class="card"><div class="ico">🧠</div><h3><span data-lang="es">IA local offline</span><span data-lang="en">Local offline AI</span></h3><p><span data-lang="es">Asistencia de IA que se ejecuta en tu dispositivo.</span><span data-lang="en">AI assistance that runs on your device.</span></p></div>
+        <div class="card"><div class="ico">🎨</div><h3><span data-lang="es">Temas claro/oscuro</span><span data-lang="en">Light/dark themes</span></h3><p><span data-lang="es">Oscuro por defecto; claro y sistema también disponibles.</span><span data-lang="en">Dark by default; light and system also available.</span></p></div>
+        <div class="card"><div class="ico">🌐</div><h3><span data-lang="es">ES / EN</span><span data-lang="en">ES / EN</span></h3><p><span data-lang="es">Interfaz en español e inglés.</span><span data-lang="en">Interface in Spanish and English.</span></p></div>
+        <div class="card"><div class="ico">🔒</div><h3><span data-lang="es">100% offline</span><span data-lang="en">100% offline</span></h3><p><span data-lang="es">Sin permisos de red. Tus documentos nunca salen del teléfono.</span><span data-lang="en">No network permissions. Your documents never leave the phone.</span></p></div>
+      </div>
+    </section>
+
+    <!-- install -->
+    <section id="install">
+      <h2><span data-lang="es">Instalación</span><span data-lang="en">Install</span></h2>
+      <p class="lead"><span data-lang="es">La app aún no está en Google Play. Descarga el APK desde el botón de arriba.</span><span data-lang="en">The app is not on Google Play yet. Download the APK from the button above.</span></p>
+      <ol class="steps">
+        <li><span data-lang="es"><b>Descarga el APK</b> desde el botón de arriba.</span><span data-lang="en"><b>Download the APK</b> from the button above.</span></li>
+        <li><span data-lang="es"><b>Activa los orígenes desconocidos</b>: Ajustes → Seguridad → permitir instalar apps de orígenes desconocidos (o confirma en el aviso del navegador).</span><span data-lang="en"><b>Allow unknown sources</b>: Settings → Security → allow installing apps from unknown sources (or confirm in the browser prompt).</span></li>
+        <li><span data-lang="es"><b>Abre el archivo .apk</b> y pulsa «Instalar».</span><span data-lang="en"><b>Open the .apk file</b> and tap "Install".</span></li>
+        <li><span data-lang="es"><b>Abre Suit Doc</b> y empieza a escribir. No pide conexión ni cuenta.</span><span data-lang="en"><b>Open Suit Doc</b> and start writing. It asks for no connection or account.</span></li>
+      </ol>
+      <div class="sha-box">
+        <div><span data-lang="es">Versión</span><span data-lang="en">Version</span>: 2.0.0-alpha16 (versionCode 16)</div>
+        <div>SHA-256: 9abd399ffbad0ce50000a36d5546af72d59d8224955e5c3d058f731fbb408f41</div>
+        <div><span data-lang="es">Tamaño</span><span data-lang="en">Size</span>: ≈ 86 MB</div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="copy">© Aurenox — todos los derechos reservados. / All rights reserved.</div>
+      <div style="margin-top:6px;font-size:12.5px;">
+        <span data-lang="es">Suit Doc · app Android de documentos 100% offline.</span>
+        <span data-lang="en">Suit Doc · 100% offline document app for Android.</span>
+      </div>
+    </footer>
+  </div>
+
+  <!--
+    Anti-copy deterrents (client-side only). These block the common casual
+    routes (right-click menu, text selection, common DevTools shortcuts) but
+    are NOT a real protection: the source is fully visible to anyone who
+    opens the browser DevTools or fetches the HTML. Honest note kept here.
+  -->
+  <script>
+    // Block context menu and text selection.
+    document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    document.addEventListener('selectstart', function (e) { e.preventDefault(); });
+    document.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+    // Block common DevTools shortcuts (F12, Ctrl/Cmd+Shift+I/J/C, Ctrl/Cmd+U).
+    document.addEventListener('keydown', function (e) {
+      var k = e.key;
+      var ctrl = e.ctrlKey || e.metaKey;
+      if (k === 'F12') { e.preventDefault(); }
+      if (ctrl && e.shiftKey && (k === 'I' || k === 'J' || k === 'C')) { e.preventDefault(); }
+      if (ctrl && (k === 'U' || k === 'u')) { e.preventDefault(); }
+    });
+
+    (function () {
+      var root = document.documentElement;
+
+      // ---- theme (dark by default, matching the app) ----
+      var saved = null;
+      try { saved = localStorage.getItem("suitdoc-theme"); } catch (e) {}
+      var theme = saved || "dark";
+      applyTheme(theme);
+
+      function applyTheme(t) {
+        root.setAttribute("data-theme", t);
+        var b = document.getElementById("themeBtn");
+        if (b) { b.textContent = t === "dark" ? "☀️" : "🌙"; }
+      }
+      window.toggleTheme = function () {
+        var t = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyTheme(t);
+        try { localStorage.setItem("suitdoc-theme", t); } catch (e) {}
+      };
+
+      // ---- language ----
+      var lang = null;
+      try { lang = localStorage.getItem("suitdoc-lang"); } catch (e) {}
+      if (!lang) { lang = (navigator.language || "es").toLowerCase().indexOf("es") === 0 ? "es" : "en"; }
+      setLang(lang);
+
+      function setLang(l) {
+        root.setAttribute("data-lang", l);
+        root.setAttribute("lang", l);
+        var es = document.getElementById("lang-es"), en = document.getElementById("lang-en");
+        if (es) es.setAttribute("aria-pressed", String(l === "es"));
+        if (en) en.setAttribute("aria-pressed", String(l === "en"));
+        try { localStorage.setItem("suitdoc-lang", l); } catch (e) {}
+      }
+      window.setLang = setLang;
+    })();
+  </script>
+</body>
+</html>
