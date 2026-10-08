@@ -15,11 +15,11 @@ Spanish spell checker, finger signature, local offline AI, and light/dark themes
 La app aún no está en Google Play. Descarga el APK firmado desde GitHub Releases:
 The app is not on Google Play yet. Download the signed APK from GitHub Releases:
 
-👉 **[v2.0.0-alpha16](https://github.com/aurenox-global/suitdoc/releases/tag/v2.0.0-alpha16)**
+👉 **[v2.0.0-alpha17](https://github.com/aurenox-global/suitdoc/releases/tag/v2.0.0-alpha17)**
 
-- **APK:** `SuitDoc-2.0.0-alpha16.apk`
-- **SHA-256:** `9abd399ffbad0ce50000a36d5546af72d59d8224955e5c3d058f731fbb408f41`
-- **Tamaño / Size:** ≈ 86 MB
+- **APK:** `SuitDoc-2.0.0-alpha17.apk`
+- **SHA-256:** `57a83cc44b36e98217850dd2dcc98e4ffd18632ae8983bd763268ed872fb276c`
+- **Tamaño / Size:** ≈ 72.9 MB
 
 ## Instalación / Installation
 
